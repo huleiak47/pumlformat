@@ -5,8 +5,7 @@ A command-line tool for formatting PlantUML diagrams with consistent indentation
 ## Features
 
 - Automatically indents nested blocks
-- Normalizes spacing around symbols and arrows
-- Handles common PlantUML syntax elements
+- Remove extra blank lines
 - Configurable indentation size
 
 ## Installation
@@ -44,14 +43,18 @@ cat input.puml | pumlformatter > formatted.puml
 ## Command Line Options
 
 ```
-USAGE:
-    pumlformatter [INPUT] [OPTIONS]
+Formats PlantUML code with consistent indentation and spacing
 
-OPTIONS:
-    -o, --output <OUTPUT>    Output file (default: stdout)
-        --indent <INDENT>    Number of spaces for indentation [default: 4]
-    -h, --help               Print help information
-    -V, --version            Print version information
+Usage: pumlformat [OPTIONS] [INPUT]
+
+Arguments:
+  [INPUT]  Input file (default: stdin)
+
+Options:
+  -o, --output <OUTPUT>  Output file (default: stdout)
+  -i, --indent <INDENT>  Number of spaces for indentation [default: 4]
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ## Examples

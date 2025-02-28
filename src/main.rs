@@ -32,15 +32,20 @@ fn format_plantuml(text: &str, indent_size: usize) -> Result<String> {
     let lines = new_text.lines().collect::<Vec<_>>();
     let mut formatted_lines = Vec::with_capacity(lines.len());
     let mut indent_level: usize = 0;
-    let mut prev_empty = false;
 
     for line in lines {
         let stripped = line.trim();
+
         if stripped.is_empty() {
-            if !prev_empty {
-                formatted_lines.push(String::new());
-                prev_empty = true;
-            }
+            formatted_lines.push(stripped.to_string());
+            continue;
+        }
+
+        // handle comment line
+        if stripped.starts_with("'") {
+            let indent = " ".repeat(indent_level * indent_size);
+            debug!("line: {}, indent_level: {}", line, indent_level);
+            formatted_lines.push(format!("{}{}", indent, stripped));
             continue;
         }
 
@@ -50,19 +55,15 @@ fn format_plantuml(text: &str, indent_size: usize) -> Result<String> {
             indent_level = indent_level.saturating_sub(1);
         }
 
-        let formatted = stripped.to_string();
-
         // Apply indentation
         debug!("line: {}, indent_level: {}", line, indent_level);
         let indent = " ".repeat(indent_level * indent_size);
-        formatted_lines.push(format!("{}{}", indent, formatted));
+        formatted_lines.push(format!("{}{}", indent, stripped));
 
         // Handle block start (increase indent after)
         if block_start_re.is_match(stripped)? {
             indent_level += 1;
         }
-
-        prev_empty = false;
     }
 
     // Ensure the output ends with a newline
@@ -135,6 +136,10 @@ actor User
 actor User
 @enduml
 "#;
+    #[test]
+    fn test_1() {
+        assert_eq!(format_plantuml(INPUT1, 4).unwrap(), OUTPUT1);
+    }
 
     const INPUT2: &str = r#"@startuml
 alt
@@ -149,6 +154,10 @@ alt
 end
 @enduml
 "#;
+    #[test]
+    fn test_2() {
+        assert_eq!(format_plantuml(INPUT2, 4).unwrap(), OUTPUT2);
+    }
 
     const INPUT3: &str = r#"@startuml
 alt
@@ -165,18 +174,31 @@ alt
 end
 @enduml
 "#;
-    #[test]
-    fn test_1() {
-        assert_eq!(format_plantuml(INPUT1, 4).unwrap(), OUTPUT1);
-    }
-
-    #[test]
-    fn test_2() {
-        assert_eq!(format_plantuml(INPUT2, 4).unwrap(), OUTPUT2);
-    }
 
     #[test]
     fn test_3() {
+        env_logger::init();
         assert_eq!(format_plantuml(INPUT3, 4).unwrap(), OUTPUT3);
+    }
+
+    const INPUT4: &str = r#"@startuml
+
+' class Test <<Interface>>{
+'     + test()
+' }
+
+@enduml"#;
+    const OUTPUT4: &str = r#"@startuml
+
+' class Test <<Interface>>{
+'     + test()
+' }
+
+@enduml
+"#;
+
+    #[test]
+    fn test_4() {
+        assert_eq!(format_plantuml(INPUT4, 4).unwrap(), OUTPUT4);
     }
 }
