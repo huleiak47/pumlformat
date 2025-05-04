@@ -8,7 +8,7 @@ description = "A formatter for plantuml source code."
 repository = "https://github.com/huleiak47/pumlformat"
 keywords = ["plantuml", "formatter"]
 rust-version = "1.85"
-categories = ["development-tools::code-formatting"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
